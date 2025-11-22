@@ -31,5 +31,9 @@ jobs:
       env:
         HEADER_API_TYPE: ${{ secrets.HEADER_API_TYPE }}
         HEADER_API_VALUE: ${{ secrets.HEADER_API_VALUE }}
+        DB_SERVER: ${{ secrets.DB_SERVER }}
+        DB_DATABASE: ${{ secrets.DB_DATABASE }}
+        DB_UID: ${{ secrets.DB_UID }}
+        DB_PWD: ${{ secrets.DB_PWD }}
 
       run: python3 __main__.py
