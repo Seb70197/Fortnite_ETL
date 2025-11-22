@@ -9,6 +9,7 @@ def azure_db_connect():
     Returns:
         variable : connection engine
     """
+    print('Starting connection to Azure SQL Database...')
     db_server = os.environ['DB_SERVER']
     db_name = os.environ['DB_DATABASE']
     db_uid = os.environ['DB_UID']
