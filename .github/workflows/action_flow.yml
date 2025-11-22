@@ -1,6 +1,7 @@
 name: API Connection Test
 
 on:
+  workflow_dispatch:  # Allows manual triggering
   schedule:
     - cron: '0 6 * * *'  # Every day at 7:00 AM UTC/ 8:00 AM CET
 
