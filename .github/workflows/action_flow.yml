@@ -2,7 +2,7 @@ name: API Connection Test
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
+    - cron: '0 6 * * *'  # Every day at 7:00 AM UTC/ 8:00 AM CET
 
 permissions:
   contents: read
