@@ -24,8 +24,8 @@ jobs:
         curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
         apt-get update
         ACCEPT_EULA=Y apt-get install -y msodbcsql18
-        pip3 install --upgrade pip setuptools wheel
-        pip3 install --upgrade pandas requests sqlalchemy pyodbc
+        python3 -m pip install --upgrade pip setuptools wheel
+        python3 -m pip install --upgrade pandas requests sqlalchemy pyodbc
 
     - name: Run api_test script
       env:
