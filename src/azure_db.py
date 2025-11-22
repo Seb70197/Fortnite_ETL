@@ -1,6 +1,6 @@
 import os
 import urllib
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 
 def azure_db_connect():

@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import datetime as dt
 from datetime import date
+import numpy as np
 import os
 
 
@@ -93,4 +94,37 @@ def clean_current_stats(players_stats_current):
     players_stats_current['ID'] = players_stats_current['type_party']+'-'+players_stats_current['player_id']
 
     return players_stats_current
+
+def clean_upload_stats(players_stats_hist, players_stats_current):
+    #From the historical stats, keep only the necessary columns and the latest update (not the evo stats)
+    players_stats_hist_update = players_stats_hist.iloc[:, np.r_[0:2,20:len(players_stats_hist.columns)]].copy()
+    players_stats_current_update = players_stats_current.copy()
+
+    # players_stats_hist = players_stats_hist.loc[players_stats_hist['update_date'] == players_stats_hist['update_date'].max()]
+    #Remove the '_value' suffix from the historical stats columns to merge properly
+    players_stats_hist_update.columns = players_stats_hist_update.columns.str.replace('_value','')
+
+    #Create an ID column to merge both dataframes
+    players_stats_hist_update['ID'] = players_stats_hist_update['type_party']+'-'+players_stats_hist_update['player_id']
+    #players_stats_current_update['ID'] = players_stats_current_update['index']+'-'+players_stats_current_update['player_id']
+
+    #Define columns to calculate evolution (remove the one for which evolution is not relevant)
+    stats_columns = ['score', 'top_1', 'top_3', 'top_5', 'top_6', 'top_10', 'top_12',
+            'top_25', 'kill_death', 'win_rate', 'match_played', 'kills', 'min_played', 'kills_per_min', 'kills_per_match', 'score_per_match', 'score_per_min', 'players_outlived']
+
+    #Calculate the evolution by subtracting current stats with historical stats
+    players_stats_current_update = players_stats_current.set_index('ID')[stats_columns].subtract(players_stats_hist_update.set_index('ID')[stats_columns])
+    #Merge the evolution stats with the current stats to have both in the same dataframe
+    players_stats_current_update = players_stats_current_update.merge(players_stats_current, on='ID', suffixes=('_evo','_value'))
+
+    #Reorder columns of the dataframe before uploading to the SQL Table
+    players_columns_order = ['type_party', 'player_id', 'score_evo', 'top_1_evo', 'top_3_evo','top_5_evo', 'top_6_evo', 'top_10_evo', 'top_12_evo', 'top_25_evo',
+        'kill_death_evo', 'win_rate_evo', 'match_played_evo', 'kills_evo','min_played_evo', 'kills_per_min_evo', 'kills_per_match_evo','score_per_min_evo', 
+        'score_per_match_evo', 'players_outlived_evo','score_value', 'top_1_value', 'top_3_value', 'top_5_value','top_6_value', 'top_10_value', 'top_12_value', 
+        'top_25_value','kill_death_value', 'win_rate_value', 'match_played_value','kills_value', 'min_played_value', 'kills_per_min_value',
+        'kills_per_match_value', 'score_per_min_value', 'score_per_match_value', 'players_outlived_value', 'update_date']
+
+    players_stats_current_update = players_stats_current_update[players_columns_order]
+
+    return players_stats_current_update
 
