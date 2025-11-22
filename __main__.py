@@ -1,6 +1,7 @@
 import pandas as pd
 from src.fortnite_api import *
 from src.azure_db import *
+from sqlalchemy import create_engine
 
 #Connect to Azure DB
 engine = azure_db_connect()
