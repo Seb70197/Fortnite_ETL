@@ -1,5 +1,9 @@
 # Fortnite_ETL
 
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)
+
 A Python-based ETL (Extract, Transform, Load) pipeline for retrieving Fortnite player statistics from the Fortnite API, processing the data, and storing it in an Azure SQL database.
 
 ---
@@ -123,6 +127,6 @@ For questions or support, please contact **Seb70197** via GitHub.
 
 ## Acknowledgments
 
-- [Fortnite API](https://fortniteapi.com/) for providing player statistics.
+- [Fortnite API](https://fortniteapi.io/) for providing player statistics.
 - [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) for data storage.
 - [GitHub Actions](https://github.com/features/actions) for workflow automation.

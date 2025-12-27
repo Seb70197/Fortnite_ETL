@@ -1,4 +1,4 @@
-name: API Connection Test
+name: Fortnite ETL Flow
 
 on:
   workflow_dispatch:  # Allows manual triggering
