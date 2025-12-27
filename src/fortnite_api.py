@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import datetime as dt
 from datetime import date
+import time
 import numpy as np
 import os
 
@@ -40,26 +41,35 @@ def find_epic_id(player_id):
         return print("Epic ID not found")
     
 def get_stats(players_df):
-    dict_epic_id = dict(zip(players_df['player_id'], players_df['epic_id']))
-    url_player_stats = 'https://fortniteapi.io/v1/stats?account='
-
+    
+    header_api = api_cred()
+    dict_epic_id = dict(zip(players_df['player_id'], players_df['platform']))
+    
     player_stats = pd.DataFrame()
-    #Create blank data list to store Stats insis
+    #Create blank data list to store Stats inside
     data = []
 
     #Loop the player's stats and saved them in the list
     for key, value in dict_epic_id.items():
-        response_player_stat = requests.get(url_player_stats+str(value), headers = api_cred())
+        url_player_stats = f'https://fortnite-api.com/v2/stats/br/v2?name={key}&accountType={value}'       
+        response_player_stat = requests.get(url_player_stats, headers = header_api)
+        #Manage potential errors in the API call
+        if response_player_stat.status_code != 200:
+            print(f"Error fetching data for player {key}: {response_player_stat.status_code}")
+            continue
+        
+        time.sleep(1)  #To avoid hitting the API rate limit
+
         data_json_stats = response_player_stat.json()
-        stats = pd.DataFrame(data_json_stats.get('global_stats')).T
-        stats = stats[['placetop1', 'kd', 'winrate','placetop3','placetop5', 'placetop6','placetop10', 'placetop12', 'placetop25', 'kills','matchesplayed', 'minutesplayed', 'score', 'playersoutlived', 'lastmodified']]
+        stats = pd.DataFrame(data_json_stats['data']['stats']['all']).T
+        stats = stats[['wins','kd','winRate','top3','top5','top6','top10','top12','top25','kills','matches','minutesPlayed','score','playersOutlived','lastModified']]
         stats.columns = ['top_1', 'kill_death', 'win_rate','top_3','top_5', 'top_6','top_10', 'top_12', 'top_25', 'kills','match_played', 'min_played', 'score', 'players_outlived', 'last_modified']
         stats['player_id'] = key
         data.append(stats)
 
     for i in range(len(data)):
         player_stats = pd.concat([player_stats, data[i]])
-    player_stats.drop(['last_modified'], axis='columns', inplace=True)
+        player_stats.drop(['last_modified'], axis='columns', inplace=True)
 
     return player_stats
 
@@ -72,7 +82,7 @@ def clean_current_stats(players_stats_current):
         'top_12', 'top_25', 'kills', 'match_played', 'min_played', 'score',
         'players_outlived']] = players_stats_current[['top_1', 'top_3', 'top_5', 'top_6', 'top_10',
         'top_12', 'top_25', 'kills', 'match_played', 'min_played', 'score',
-        'players_outlived']].astype(int)
+        'players_outlived']].fillna(0).astype(int)
     #Reorder columns
     players_stats_current = players_stats_current[['player_id', 'top_1', 'top_3', 'top_5', 'top_6', 'top_10',
         'top_12', 'top_25', 'kills', 'kill_death', 'win_rate','match_played', 'min_played', 'score',
@@ -92,6 +102,10 @@ def clean_current_stats(players_stats_current):
     players_stats_current = players_stats_current.reset_index()
     players_stats_current.rename(columns={'index': 'type_party'}, inplace=True)
     players_stats_current['ID'] = players_stats_current['type_party']+'-'+players_stats_current['player_id']
+    #the fortnite-api.com includes 'ltm' stats that we don't want to keep
+    players_stats_current = players_stats_current.loc[players_stats_current['type_party']!='ltm']
+    players_stats_current = players_stats_current.loc[players_stats_current['type_party']!='overall']
+
 
     return players_stats_current
 
